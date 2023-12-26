@@ -160,28 +160,34 @@ public class MecanumTeleOp extends LinearOpMode {
 
             // Servo for the claw's tilt controls, angling the claw when dpadLeftD is pushed.
 
-            if (dpadLeftD) {
+            if (dpadRightD) {
+                // set servo to it's flat position
                 ServoTilt.setPosition(0.25);
-            } else if (dpadRightD) {
+            } else if (dpadLeftD) {
+                // set servo to it's backboard position
                 ServoTilt.setPosition(-0.1);
             }
 
-            // Claw Controls, Left and Right claw open
+//          // Claw Controls, Left and Right claw open
 
-            if (leftBumperD) {
-                // move to 0 degrees.
-                ServoLeftClaw.setPosition(2);
+            if (dpadUp) {
+                // move clockwise, closing (Left) claw.
+                ServoLeftClaw.setPosition(1);
+            } else if (dpadDown){
+                // move c-c, opening (Left) claw.
+                ServoLeftClaw.setPosition(0.1);
             } else {
-                // move to 0 degrees
-                ServoLeftClaw.setPosition(0);
+                ServoLeftClaw.setPosition(0.5);
             }
 
-            if (rightBumperD) {
-                // move to 0 degrees.
-                ServoRightClaw.setPosition(0);
+            if (triangle) {
+                // move clockwise, closing (Right) claw.
+                ServoRightClaw.setPosition(0.1);
+            } else if(cross) {
+                // move c-c, opening (Right) claw.
+                ServoRightClaw.setPosition(1);
             } else {
-                // move to 0 degrees
-                ServoRightClaw.setPosition(2);
+                ServoRightClaw.setPosition(0.5);
             }
 
 //          Aim Crossbow Servo + Launch Controls
