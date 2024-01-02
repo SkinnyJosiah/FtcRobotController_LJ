@@ -19,25 +19,42 @@ public class Autonomous extends LinearOpMode {
         RFMotor = hardwareMap.get(DcMotor.class, "RFMotor");
         RBMotor = hardwareMap.get(DcMotor.class, "RBMotor");
 
+        // LF MOTOR
+        LFMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LFMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // LB MOTOR
+        LBMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LBMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // RF MOTOR
+        RFMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RFMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // RB MOTOR
+        RBMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RBMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
         // REVERSE RIGHT SIDE MOTORS (very important, otherwise robot is erratic)
         // If robot moves backwards when commanded to go forwards, reverse the left side instead.
         RFMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         RBMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
+
+
         waitForStart();
-        
-        // Robot go forward.
-        LFMotor.setPower(1);
-        LBMotor.setPower(1);
-        RFMotor.setPower(1);
-        RBMotor.setPower(1);
 
-        sleep(1000);
+        while (opModeIsActive()) {
+            // These are the motors' positions.
+            double LFPosition = LFMotor.getCurrentPosition();
+            double LBPosition = LBMotor.getCurrentPosition();
+            double RFPosition = RFMotor.getCurrentPosition();
+            double RBPosition = RBMotor.getCurrentPosition();
 
-        // Robot Stop.
-        LFMotor.setPower(0);
-        LBMotor.setPower(0);
-        RFMotor.setPower(0);
-        RBMotor.setPower(0);
+            // Show the position of the motors.
+            telemetry.addData("Left Front Motor Position", LFPosition);
+            telemetry.addData("Left Back Motor Position", LBPosition);
+            telemetry.addData("Right Front Motor Position", RFPosition);
+            telemetry.addData("Right Back Motor Position", RBPosition);
+            telemetry.update();
+        }
     }
 }
