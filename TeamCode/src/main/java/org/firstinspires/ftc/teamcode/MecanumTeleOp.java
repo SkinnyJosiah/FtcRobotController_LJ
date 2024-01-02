@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-
+// Guess none of these imported, I've got no idea.
 
 @TeleOp
 public class MecanumTeleOp extends LinearOpMode {
@@ -25,6 +25,7 @@ public class MecanumTeleOp extends LinearOpMode {
         DcMotor RFMotor = hardwareMap.dcMotor.get("RFMotor");
         DcMotor RBMotor = hardwareMap.dcMotor.get("RBMotor");
 
+
         // REVERSE RIGHT SIDE MOTORS (very important, otherwise robot is erratic)
         // If robot moves backwards when commanded to go forwards, reverse the left side instead.
         RFMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -33,14 +34,14 @@ public class MecanumTeleOp extends LinearOpMode {
         // Motor for Intake & Linear Slide
         // Connected to Expansion Hub
         DcMotor linearMotor = hardwareMap.dcMotor.get("linearMotor"); // For Linear Slide
-        DcMotor slideMotor = hardwareMap.dcMotor.get("slideMotor"); // for Lead Screw
+        DcMotor leadMotor = hardwareMap.dcMotor.get("leadMotor"); // for Lead Screw
 
         // Servos for Claw / Linear Slide
         // Connected to Expansion Hub
         Servo ServoTilt = hardwareMap.servo.get("ServoTilt");
         Servo ServoLeftClaw = hardwareMap.servo.get("ServoLeftClaw");
         Servo ServoRightClaw = hardwareMap.servo.get("ServoRightClaw");
-        Servo aimServo = hardwareMap.servo.get("aimServo");
+        //Servo aimServo = hardwareMap.servo.get("aimServo");
         Servo launchServo = hardwareMap.servo.get("launchServo");
 
         waitForStart();
@@ -124,13 +125,13 @@ public class MecanumTeleOp extends LinearOpMode {
 
             if (crossD) {
                 // Turn left
-                slideMotor.setPower(1.0); // Adjust the power value as needed
+                leadMotor.setPower(1.0); // Adjust the power value as needed
             } else if (triangleD) {
                 // Turn right
-                slideMotor.setPower(-1.0); // Adjust the power value as needed
+                leadMotor.setPower(-1.0); // Adjust the power value as needed
             } else {
                 // Stop the slideMotor when neither dpad_up nor dpad_down is pressed
-                slideMotor.setPower(0.0);
+                leadMotor.setPower(0.0);
             }
 
             // Control the linearMotor based on gamepad2's leftstickY, or in other words, gamepadYYleft.
@@ -158,14 +159,21 @@ public class MecanumTeleOp extends LinearOpMode {
 
 //          Servo Controls
 
-            // Servo for the claw's tilt controls, angling the claw when dpadLeftD is pushed.
+            // Servo for the claw's tilt controls, angling the claw.
 
-            if (dpadRightD) {
-                // set servo to it's flat position
-                ServoTilt.setPosition(0.25);
-            } else if (dpadLeftD) {
-                // set servo to it's backboard position
-                ServoTilt.setPosition(-0.1);
+            /*
+            The backboard is told to be at 30 degrees.
+             */
+
+            if (dpadLeft) {
+                // set servo to its flat position
+                ServoTilt.setPosition(0.30); // (This is ABOUT 55 degrees.)
+            } else if (circle) {
+                // set servo to its backboard position
+                ServoTilt.setPosition(-0.25); // (This is -45 degrees.)
+            } else if (rightButton) {
+                // intended to set servo back to hiding position
+                ServoTilt.setPosition(0.0);
             }
 
 //          // Claw Controls, Left and Right claw open
@@ -174,7 +182,7 @@ public class MecanumTeleOp extends LinearOpMode {
                 // move clockwise, closing (Left) claw.
                 ServoLeftClaw.setPosition(1);
             } else if (dpadDown){
-                // move c-c, opening (Left) claw.
+                // move counter-clockwise, opening (Left) claw.
                 ServoLeftClaw.setPosition(0.1);
             } else {
                 ServoLeftClaw.setPosition(0.5);
@@ -184,7 +192,7 @@ public class MecanumTeleOp extends LinearOpMode {
                 // move clockwise, closing (Right) claw.
                 ServoRightClaw.setPosition(0.1);
             } else if(cross) {
-                // move c-c, opening (Right) claw.
+                // move counter-clockwise, opening (Right) claw.
                 ServoRightClaw.setPosition(1);
             } else {
                 ServoRightClaw.setPosition(0.5);
@@ -192,13 +200,16 @@ public class MecanumTeleOp extends LinearOpMode {
 
 //          Aim Crossbow Servo + Launch Controls
 
-            if (dpadUpD) {
-                // move to 0 degrees.
+            /*
+            if (rightBumperD) {
+                 move to 0 degrees.
                 aimServo.setPosition(1);
-            } else if (dpadDownD) {
-                // move to 0 degrees
+            } else if (leftBumperD) {
+                 move to 0 degrees
                 aimServo.setPosition(0.5);
             }
+            */
+
 
             if (squareD) {
                 // move to 0 degrees.
