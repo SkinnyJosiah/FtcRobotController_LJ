@@ -63,7 +63,7 @@ public class MecanumTeleOp extends LinearOpMode {
 
             // Gamepad Stick Function f------------------------------------------------------------f
 
-            double joystickAngle = Math.toDegrees(Math.atan2(gamepadY, gamepadX)); // Tracks the angle of the Joystick using arc tangent.
+            double joystickAngle = Math.toDegrees(Math.atan2(gamepadY, gamepadX)); // Tracks the angle of the Joystick using arc tangent. Not really needed.
 
 //          Gamepad Misc Buttons b-----------------------------------------------------------------b
 
@@ -140,8 +140,8 @@ public class MecanumTeleOp extends LinearOpMode {
 
             linearMotor.setPower(linearPOWER);
 
-            double minServoPosition = 0.0;  // Set to the minimum allowed position
-            double maxServoPosition = 1.0;  // Set to the maximum allowed position
+            //double minServoPosition = 0.0;  // Set to the minimum allowed position
+            //double maxServoPosition = 1.0;  // Set to the maximum allowed position
 
             //double tiltPOWER = gamepadYYleft / denominator;
 
@@ -167,7 +167,7 @@ public class MecanumTeleOp extends LinearOpMode {
 
             if (dpadLeft) {
                 // set servo to its flat position
-                ServoTilt.setPosition(0.30); // (This is ABOUT 55 degrees.)
+                ServoTilt.setPosition(0.30); // (This is ABOUT 55 degrees. if not.)
             } else if (circle) {
                 // set servo to its backboard position
                 ServoTilt.setPosition(-0.25); // (This is -45 degrees.)
@@ -216,7 +216,9 @@ public class MecanumTeleOp extends LinearOpMode {
                 launchServo.setPosition(0);
             } else if (circleD) {
                 // move to 0 degrees
-                launchServo.setPosition(-1);
+                launchServo.setPosition(1.2);
+            } else {
+                launchServo.setPosition(0.5);
             }
         }
     }
