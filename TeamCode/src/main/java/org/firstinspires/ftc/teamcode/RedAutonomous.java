@@ -2,104 +2,301 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvPipeline;
+import org.openftc.easyopencv.OpenCvWebcam;
+
+import javax.lang.model.element.VariableElement;
+
+@Autonomous
 public class RedAutonomous extends LinearOpMode {
-
     protected DcMotor LFMotor;
     protected DcMotor LBMotor;
     protected DcMotor RFMotor;
     protected DcMotor RBMotor;
 
+    protected VoltageSensor VoltageSensor;
+
+    OpenCvWebcam webcam;
+
     @Override
-    public void runOpMode() throws InterruptedException{
-
-        /*
-        Define motors and servos
-         */
-
+    public void runOpMode() throws InterruptedException {
         LFMotor = hardwareMap.get(DcMotor.class, "LFMotor");
         LBMotor = hardwareMap.get(DcMotor.class, "LBMotor");
         RFMotor = hardwareMap.get(DcMotor.class, "RFMotor");
         RBMotor = hardwareMap.get(DcMotor.class, "RBMotor");
 
+        VoltageSensor = hardwareMap.voltageSensor.iterator().next();
+        double Volts = VoltageSensor.getVoltage();
+
         Servo ServoTilt = hardwareMap.servo.get("ServoTilt");
         Servo ServoLeftClaw = hardwareMap.servo.get("ServoLeftClaw");
         Servo ServoRightClaw = hardwareMap.servo.get("ServoRightClaw");
 
-        // LF MOTOR (reset position upon each run)
         LFMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         LFMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        // LB MOTOR(reset position upon each run)
         LBMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         LBMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        // RF MOTOR(reset position upon each run)
         RFMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         RFMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        // RB MOTOR(reset position upon each run)
         RBMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         RBMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        // REVERSE RIGHT SIDE MOTORS (very important, otherwise robot is erratic)
-        // If robot moves backwards when commanded to go forwards, reverse the left side instead.
+        // Initialize camera and set up OpenCV pipeline
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        webcam.setPipeline(new SamplePipeline());
+        webcam.setMillisecondsPermissionTimeout(5000);
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+            }
 
-        RFMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        RBMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-
-
+            @Override
+            public void onError(int errorCode) {
+                /*
+                 * This will be called if the camera could not be opened
+                 */
+            }
+        });
 
         waitForStart();
 
         while (opModeIsActive()) {
-
-            // These are the motors' positions, shown on the Driver Hub.
             double LFPosition = LFMotor.getCurrentPosition();
             double LBPosition = LBMotor.getCurrentPosition();
             double RFPosition = RFMotor.getCurrentPosition();
             double RBPosition = RBMotor.getCurrentPosition();
 
-            // Show the position of the motors.
             telemetry.addData("Left Front Motor Position", LFPosition);
             telemetry.addData("Left Back Motor Position", LBPosition);
             telemetry.addData("Right Front Motor Position", RFPosition);
             telemetry.addData("Right Back Motor Position", RBPosition);
             telemetry.update();
 
-            // Move forward. Push purple pixel onto the red tape.
-            LFMotor.setPower(1);
-            LBMotor.setPower(1);
-            RFMotor.setPower(1);
-            RBMotor.setPower(1);
+            // Calculate the scaling factor based off of what previously worked.
+            //double scalingFactor = 0.275 / 12.28;
 
-            sleep (500);
+            // Power based off of voltage and scale
+            // This is almost always changing. Refer to https://www.desmos.com/calculator/gyl9bsxfqc
+            double power = 0.2722;
 
-            // Robot moves backward, to wall.
-            LFMotor.setPower(-1);
-            LBMotor.setPower(-1);
-            RFMotor.setPower(-1);
-            RBMotor.setPower(-1);
+            // Moving stuff!!
+            moveForward(power, 1980);
+            stopMotors(100);
+            moveBackward(power, 500);
+            stopMotors(1000);
+            moveRight(power, 500);
+            stopMotors(100);
+            moveBackward(power, 2000);
+            //moveRight(power, 6000);
+            //stopMotors(100);
+            stopMotors(30000);
 
-            sleep(500);
 
-            // Robot goes to the right to park.
-            LFMotor.setPower(1);
-            LBMotor.setPower(-1);
-            RFMotor.setPower(-1);
-            RBMotor.setPower(1);
+            telemetry.addLine("Waiting for start");
+            telemetry.update();
 
-            sleep (1000);
+            while (opModeIsActive()) {
+                telemetry.addData("Frame Count", webcam.getFrameCount());
+                telemetry.addData("FPS", String.format("%.2f", webcam.getFps()));
+                telemetry.addData("Pipeline time ms", webcam.getPipelineTimeMs());
+                telemetry.update();
 
-            // Stop when parked.
-            LFMotor.setPower(0);
-            LBMotor.setPower(0);
-            RFMotor.setPower(0);
-            RBMotor.setPower(0);
+                if (gamepad1.left_stick_button) {
+                    webcam.stopStreaming();
+                    webcam.closeCameraDevice();
+                }
 
+                sleep(100);
+            }
+
+            requestOpModeStop();
+        }
+    }
+
+    private void moveForward(double power, long motionTime) {
+        LFMotor.setPower(-power);
+        LBMotor.setPower(power);
+        RFMotor.setPower(-power);
+        RBMotor.setPower(-power);
+        sleep(motionTime);
+    }
+
+    private void moveRight(double power, long motionTime) {
+        LFMotor.setPower(-power);
+        LBMotor.setPower(-power);
+        RFMotor.setPower(power);
+        RBMotor.setPower(-power);
+        sleep(motionTime);
+    }
+
+    private void moveLeft(double power, long motionTime) {
+        LFMotor.setPower(power);
+        LBMotor.setPower(power);
+        RFMotor.setPower(-power);
+        RBMotor.setPower(power);
+        sleep(motionTime);
+    }
+
+    private void moveBackward(double power, long motionTime) {
+        LFMotor.setPower(power);
+        LBMotor.setPower(-power);
+        RFMotor.setPower(power);
+        RBMotor.setPower(power);
+        sleep(motionTime);
+    }
+
+    private void stopMotors(long motionTime) {
+        LFMotor.setPower(0);
+        LBMotor.setPower(0);
+        RFMotor.setPower(0);
+        RBMotor.setPower(0);
+        sleep(motionTime);
+    }
+
+    private void RFMove(double power, long motionTime) {
+        LFMotor.setPower(0);
+        LBMotor.setPower(0);
+        RFMotor.setPower(power);
+        RBMotor.setPower(0);
+        sleep(motionTime);
+    }
+
+    class SamplePipeline extends OpenCvPipeline {
+        boolean viewportPaused;
+        ColorDetection colorDetection;
+
+        public SamplePipeline() {
+            colorDetection = new ColorDetection("red");
+        }
+
+        @Override
+        public Mat processFrame(Mat input) {
+            // Process the frame using color detection and saturation check
+            Mat processedFrame = colorDetection.processFrame(input);
+
+            // Draw rectangles on the original input frame
+            drawRedRectangles(input);
+
+            return processedFrame;
+        }
+
+        private void drawRedRectangles(Mat input) {
+            // Center Rectangle
+            Imgproc.rectangle(
+                    input,
+                    new Point(input.cols() / 4, input.rows() / 8),
+                    new Point(input.cols() * (2f / 4f), input.rows() * (2f / 3f)),
+                    new Scalar(128, 0, 0), 2); // Make the rectangles red
+
+            // Right Rectangle
+            Imgproc.rectangle(
+                    input,
+                    new Point(input.cols() * (3f / 4f), input.rows() / 8),
+                    new Point(input.cols() - 1, input.rows() * (3f / 4f)),
+                    new Scalar(128, 0, 0), 2); // Make the rectangles red
+        }
+
+        @Override
+        public void onViewportTapped() {
+            viewportPaused = !viewportPaused;
+
+            if (viewportPaused) {
+                webcam.pauseViewport();
+            } else {
+                webcam.resumeViewport();
+            }
+        }
+    }
+
+    public static class ColorDetection extends OpenCvPipeline {
+        Mat hsv = new Mat();
+        Mat mask1, mask2 = new Mat();
+        Mat end = new Mat();
+
+        String color;
+
+        public ColorDetection(String color) {
+            this.color = color;
+        }
+
+        @Override
+        public Mat processFrame(Mat input) {
+            Scalar scalarLow, scalarHigh;
+
+            if (color.equals("blue")) {
+                // Blue color range
+                scalarLow = new Scalar(90, 100, 100);
+                scalarHigh = new Scalar(140, 255, 255);
+            } else if (color.equals("red")) {
+                // Red color range
+                scalarLow = new Scalar(0, 70, 50);
+                scalarHigh = new Scalar(8, 255, 255);
+
+                Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
+                mask1 = new Mat();
+                mask2 = new Mat();
+                Core.inRange(hsv, new Scalar(172, 70, 50), new Scalar(180, 255, 255), mask1);
+                Core.inRange(hsv, new Scalar(0, 70, 50), new Scalar(8, 255, 255), mask2);
+                Core.bitwise_or(mask1, mask2, end);
+            } else {
+                // Default color range
+                scalarLow = new Scalar(100, 0, 0);
+                scalarHigh = new Scalar(0, 0, 100);
+            }
+
+            // Check saturation and change color accordingly
+            Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
+            Core.inRange(hsv, scalarLow, scalarHigh, end);
+            checkAndChangeColor(input, end, 30);
+
+            return input;
+        }
+
+        private void checkAndChangeColor(Mat input, Mat mask, int saturationThreshold) {
+            Mat temp = new Mat();
+            Imgproc.cvtColor(input, temp, Imgproc.COLOR_RGB2HSV);
+
+            for (int i = 0; i < mask.rows(); i++) {
+                for (int j = 0; j < mask.cols(); j++) {
+                    double[] pixel = mask.get(i, j);
+                    if (pixel[0] > 0) {
+                        double saturation = temp.get(i, j)[1];
+                        if (saturation >= saturationThreshold) {
+                            if (!((j >= input.cols() / 4 && j <= input.cols() * (2f / 4f) &&
+                                    i >= input.rows() / 8 && i <= input.rows() * (2f / 3f)) ||
+                                    (j >= input.cols() * (3f / 4f) && j <= input.cols() - 1 &&
+                                            i >= input.rows() / 8 && i <= input.rows() * (3f / 4f)))) {
+                                Imgproc.rectangle(
+                                        input,
+                                        new Point(j - 5, i - 5),
+                                        new Point(j + 5, i + 5),
+                                        new Scalar(255, 75, 75), 1); // Make rectangles Light Red
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
