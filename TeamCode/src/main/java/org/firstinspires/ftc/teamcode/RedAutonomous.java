@@ -25,28 +25,39 @@ import javax.lang.model.element.VariableElement;
 
 @Autonomous
 public class RedAutonomous extends LinearOpMode {
+
+    // Define Motors
     protected DcMotor LFMotor;
     protected DcMotor LBMotor;
     protected DcMotor RFMotor;
     protected DcMotor RBMotor;
 
+    // Unused Voltage Sensor
     protected VoltageSensor VoltageSensor;
 
+    //Camera
     OpenCvWebcam webcam;
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        //Redefine and make motors work.
+
         LFMotor = hardwareMap.get(DcMotor.class, "LFMotor");
         LBMotor = hardwareMap.get(DcMotor.class, "LBMotor");
         RFMotor = hardwareMap.get(DcMotor.class, "RFMotor");
         RBMotor = hardwareMap.get(DcMotor.class, "RBMotor");
 
+        // Voltage Sensor and current Volts
         VoltageSensor = hardwareMap.voltageSensor.iterator().next();
         double Volts = VoltageSensor.getVoltage();
 
+        // Servos for claw
         Servo ServoTilt = hardwareMap.servo.get("ServoTilt");
         Servo ServoLeftClaw = hardwareMap.servo.get("ServoLeftClaw");
         Servo ServoRightClaw = hardwareMap.servo.get("ServoRightClaw");
+
+        // Reset all positions back to 0 after every use.
 
         LFMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         LFMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -82,6 +93,9 @@ public class RedAutonomous extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+
+            // Add motor telemetry data (currently not working)
+
             double LFPosition = LFMotor.getCurrentPosition();
             double LBPosition = LBMotor.getCurrentPosition();
             double RFPosition = RFMotor.getCurrentPosition();
@@ -93,11 +107,12 @@ public class RedAutonomous extends LinearOpMode {
             telemetry.addData("Right Back Motor Position", RBPosition);
             telemetry.update();
 
-            // Calculate the scaling factor based off of what previously worked.
+            // Calculate the scaling factor based off of what previously worked. Unused.
             //double scalingFactor = 0.275 / 12.28;
 
             // Power based off of voltage and scale
             // This is almost always changing. Refer to https://www.desmos.com/calculator/gyl9bsxfqc
+
             double power = 0.2722;
 
             // Moving stuff!!
@@ -108,10 +123,11 @@ public class RedAutonomous extends LinearOpMode {
             moveRight(power, 500);
             stopMotors(100);
             moveBackward(power, 2000);
+
             //moveRight(power, 6000);
             //stopMotors(100);
-            stopMotors(30000);
 
+            stopMotors(30000);
 
             telemetry.addLine("Waiting for start");
             telemetry.update();
@@ -133,6 +149,8 @@ public class RedAutonomous extends LinearOpMode {
             requestOpModeStop();
         }
     }
+
+    // Functions for moving. Self explanatory, just call upon the function and give the first parameter power. motionTime will be removed soon once we have odometry pods and better encoder usage.
 
     private void moveForward(double power, long motionTime) {
         LFMotor.setPower(-power);
@@ -181,6 +199,8 @@ public class RedAutonomous extends LinearOpMode {
         RBMotor.setPower(0);
         sleep(motionTime);
     }
+
+    // A LOT of camera work. 
 
     class SamplePipeline extends OpenCvPipeline {
         boolean viewportPaused;
