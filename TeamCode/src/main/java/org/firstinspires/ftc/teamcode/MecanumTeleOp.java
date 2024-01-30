@@ -11,8 +11,6 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-// Guess none of these imported, I've got no idea.
-
 @TeleOp
 public class MecanumTeleOp extends LinearOpMode {
     @Override
@@ -20,6 +18,7 @@ public class MecanumTeleOp extends LinearOpMode {
 
         // Our Motors for Driving
         // Connected to Control Hub
+
         DcMotor LFMotor = hardwareMap.dcMotor.get("LFMotor");
         DcMotor LBMotor = hardwareMap.dcMotor.get("LBMotor");
         DcMotor RFMotor = hardwareMap.dcMotor.get("RFMotor");
@@ -28,6 +27,7 @@ public class MecanumTeleOp extends LinearOpMode {
 
         // REVERSE RIGHT SIDE MOTORS (very important, otherwise robot is erratic)
         // If robot moves backwards when commanded to go forwards, reverse the left side instead.
+
         RFMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         RBMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -38,17 +38,21 @@ public class MecanumTeleOp extends LinearOpMode {
 
         // Servos for Claw / Linear Slide
         // Connected to Expansion Hub
+
         Servo ServoTilt = hardwareMap.servo.get("ServoTilt");
         Servo ServoLeftClaw = hardwareMap.servo.get("ServoLeftClaw");
         Servo ServoRightClaw = hardwareMap.servo.get("ServoRightClaw");
-        //Servo aimServo = hardwareMap.servo.get("aimServo");
+        // Servo aimServo = hardwareMap.servo.get("aimServo");
         Servo launchServo = hardwareMap.servo.get("launchServo");
 
         waitForStart();
 
         if (isStopRequested()) return;
 
+        boolean halfPower = false; // Activation of robot slow movement.
+
         while (opModeIsActive()) {
+
 
             double gamepadX, gamepadY, rx;
 
@@ -80,6 +84,11 @@ public class MecanumTeleOp extends LinearOpMode {
             boolean leftButton = gamepad1.left_stick_button;
             boolean rightButton = gamepad1.right_stick_button;
 
+            boolean leftBumper = gamepad1.left_bumper;
+            boolean rightBumper = gamepad1.right_bumper;
+
+            boolean touchpad = gamepad1.touchpad;
+
 //          Gamepad 2 Controls, Shared names have a D after them to represent "double" or "dos" for the 2nd gamepad.
 
             boolean dpadUpD = gamepad2.dpad_up;
@@ -98,39 +107,59 @@ public class MecanumTeleOp extends LinearOpMode {
             boolean leftBumperD = gamepad2.left_bumper;
             boolean rightBumperD = gamepad2.right_bumper;
 
+            double ClawPos = ServoTilt.getPosition();
+
+            telemetry.addData("Claw Tilt Servo Position", ClawPos);
+
 //          Gamepad Misc Buttons b-----------------------------------------------------------------b
+
+
 
 //          \\--//
 //          //--\\
 
+
+
 //          Setting power to Motors m--------------------------------------------------------------m
 
             double denominator = Math.max(Math.abs(gamepadY) + Math.abs(gamepadX) + Math.abs(turn), 1);
+
+            double powerMultiplier = halfPower ? 0.5 : 1.0; // changes between half power and full power.
 
             double LFPOWER = (gamepadY + gamepadX + turn) / denominator;
             double LBPOWER = (gamepadY - gamepadX + turn) / denominator;
             double RFPOWER = (gamepadY - gamepadX - turn) / denominator;
             double RBPOWER = (gamepadY + gamepadX - turn) / denominator;
 
-            LFMotor.setPower(LFPOWER);
-            LBMotor.setPower(LBPOWER);
-            RFMotor.setPower(RFPOWER);
-            RBMotor.setPower(-RBPOWER);
+            LFMotor.setPower(LFPOWER * powerMultiplier);
+            LBMotor.setPower(-LBPOWER * powerMultiplier);
+            RFMotor.setPower(-RFPOWER * powerMultiplier);
+            RBMotor.setPower(-RBPOWER * powerMultiplier);
+
+            // Use gamepad bumpers to set power.
+
+            if (leftBumper) {
+                // Set to half power
+                halfPower = true;
+            } else if (rightBumper) {
+                // Set to full power
+                halfPower = false;
+            }
 
 //          Misc Functions Motors m----------------------------------------------------------------m
 
 //          Intake Motor Controls
 
-            // Control the slideMotor based on Triangle and Cross
+            // Control the lead screw based on Triangle and Cross
 
             if (crossD) {
-                // Turn left
-                leadMotor.setPower(1.0); // Adjust the power value as needed
+                // Lead Screw retracts.
+                leadMotor.setPower(1.0);
             } else if (triangleD) {
-                // Turn right
-                leadMotor.setPower(-1.0); // Adjust the power value as needed
+                // Lead Screw goes up, extends hook.
+                leadMotor.setPower(-1.0);
             } else {
-                // Stop the slideMotor when neither dpad_up nor dpad_down is pressed
+                // Stopped upon nothing pressed to hold position.
                 leadMotor.setPower(0.0);
             }
 
@@ -165,18 +194,31 @@ public class MecanumTeleOp extends LinearOpMode {
             The backboard is told to be at 30 degrees.
              */
 
+
+            // Temporary servo fix.
+            if (touchpad){
+                ServoTilt.setDirection(Servo.Direction.REVERSE);
+            }
+            else {
+                ServoTilt.setDirection(Servo.Direction.FORWARD);
+            }
+
             if (dpadLeft) {
                 // set servo to its flat position
-                ServoTilt.setPosition(0.30); // (This is ABOUT 55 degrees. if not.)
+                ServoTilt.setPosition(0.45); // (This is about ~40 degrees)
             } else if (circle) {
                 // set servo to its backboard position
-                ServoTilt.setPosition(-0.25); // (This is -45 degrees.)
+                ServoTilt.setPosition(0.95); // (This is -45 degrees.)
             } else if (rightButton) {
                 // intended to set servo back to hiding position
-                ServoTilt.setPosition(0.0);
+                ServoTilt.setPosition(0);
             }
 
 //          // Claw Controls, Left and Right claw open
+
+            /*
+            Left Claw
+             */
 
             if (dpadUp) {
                 // move clockwise, closing (Left) claw.
@@ -187,6 +229,10 @@ public class MecanumTeleOp extends LinearOpMode {
             } else {
                 ServoLeftClaw.setPosition(0.5);
             }
+
+             /*
+            Right Claw
+             */
 
             if (triangle) {
                 // move clockwise, closing (Right) claw.
@@ -210,6 +256,9 @@ public class MecanumTeleOp extends LinearOpMode {
             }
             */
 
+             /*
+            Drone Launching Servo
+             */
 
             if (squareD) {
                 // move to 0 degrees.
@@ -223,29 +272,3 @@ public class MecanumTeleOp extends LinearOpMode {
         }
     }
 }
-
-
-
-
-
-// Unused Code
-
-//          Setting power to Motors m--------------------------------------------------------------m
-
-// Denominator is the largest motor power (absolute value) or 1
-// This ensures all the powers maintain the same ratio,
-// but only if at least one is out of the range [-1, 1]
-
-// Unused Motor Power Code
-
-//          double frontRightPower = (yControl * Math.abs(yControl) - xControl * Math.abs(xControl) + turn);
-//          double backRightPower = (yControl * Math.abs(yControl) + xControl * Math.abs(xControl) + turn);
-//          double frontLeftPower = (yControl * Math.abs(yControl) + xControl * Math.abs(xControl) - turn);
-//          double backLeftPower = (yControl * Math.abs(yControl) - xControl * Math.abs(xControl) - turn);
-
-//          LFMotor.setPower(frontLeftPower);
-//          LBMotor.setPower(backLeftPower);
-//          RFMotor.setPower(frontRightPower);
-//          RBMotor.setPower(backRightPower);
-
-//          Setting power to Motors m--------------------------------------------------------------m
