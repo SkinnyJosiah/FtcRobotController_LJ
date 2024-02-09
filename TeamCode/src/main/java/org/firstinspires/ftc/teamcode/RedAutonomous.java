@@ -32,6 +32,14 @@ public class RedAutonomous extends LinearOpMode {
     protected DcMotor RFMotor;
     protected DcMotor RBMotor;
 
+    protected DcMotor leadMotor;
+
+    protected DcMotor odoPodLeft;
+
+    protected DcMotor odoPodRight;
+
+    protected DcMotor odoPodAux;
+
     // Unused Voltage Sensor
     protected VoltageSensor VoltageSensor;
 
@@ -47,6 +55,13 @@ public class RedAutonomous extends LinearOpMode {
         LBMotor = hardwareMap.get(DcMotor.class, "LBMotor");
         RFMotor = hardwareMap.get(DcMotor.class, "RFMotor");
         RBMotor = hardwareMap.get(DcMotor.class, "RBMotor");
+
+        leadMotor = hardwareMap.get(DcMotor.class, "leadMotor");
+
+        // Shadow Odometry pod encoders
+        odoPodLeft = LFMotor;
+        odoPodRight = RFMotor;
+        odoPodAux = LBMotor;
 
         // Voltage Sensor and current Volts
         VoltageSensor = hardwareMap.voltageSensor.iterator().next();
@@ -113,7 +128,7 @@ public class RedAutonomous extends LinearOpMode {
             // Power based off of voltage and scale
             // This is almost always changing. Refer to https://www.desmos.com/calculator/gyl9bsxfqc
 
-            double power = 0.2722;
+            double power = 0.28;
 
             // Moving stuff!!
             moveForward(power, 1980);
@@ -124,8 +139,9 @@ public class RedAutonomous extends LinearOpMode {
             stopMotors(100);
             moveBackward(power, 2000);
 
-            //moveRight(power, 6000);
-            //stopMotors(100);
+            moveRight(power, 6000);
+
+            stopMotors(100);
 
             stopMotors(30000);
 
@@ -200,7 +216,7 @@ public class RedAutonomous extends LinearOpMode {
         sleep(motionTime);
     }
 
-    // A LOT of camera work. 
+    // A LOT of camera work.
 
     class SamplePipeline extends OpenCvPipeline {
         boolean viewportPaused;
@@ -227,15 +243,16 @@ public class RedAutonomous extends LinearOpMode {
                     input,
                     new Point(input.cols() / 4, input.rows() / 8),
                     new Point(input.cols() * (2f / 4f), input.rows() * (2f / 3f)),
-                    new Scalar(128, 0, 0), 2); // Make the rectangles red
+                    new Scalar(128, 0, 0), 2); // Draw the rectangle outline in red
 
             // Right Rectangle
             Imgproc.rectangle(
                     input,
                     new Point(input.cols() * (3f / 4f), input.rows() / 8),
                     new Point(input.cols() - 1, input.rows() * (3f / 4f)),
-                    new Scalar(128, 0, 0), 2); // Make the rectangles red
+                    new Scalar(128, 0, 0), 2); // Draw the rectangle outline in red
         }
+
 
         @Override
         public void onViewportTapped() {
@@ -297,25 +314,61 @@ public class RedAutonomous extends LinearOpMode {
             Mat temp = new Mat();
             Imgproc.cvtColor(input, temp, Imgproc.COLOR_RGB2HSV);
 
+            // Counters for red and total pixels in each rectangle
+            int redPixelCountCenter = 0;
+            int totalPixelCountCenter = 0;
+
+            int redPixelCountRight = 0;
+            int totalPixelCountRight = 0;
+
             for (int i = 0; i < mask.rows(); i++) {
                 for (int j = 0; j < mask.cols(); j++) {
                     double[] pixel = mask.get(i, j);
                     if (pixel[0] > 0) {
                         double saturation = temp.get(i, j)[1];
-                        if (saturation >= saturationThreshold) {
-                            if (!((j >= input.cols() / 4 && j <= input.cols() * (2f / 4f) &&
-                                    i >= input.rows() / 8 && i <= input.rows() * (2f / 3f)) ||
-                                    (j >= input.cols() * (3f / 4f) && j <= input.cols() - 1 &&
-                                            i >= input.rows() / 8 && i <= input.rows() * (3f / 4f)))) {
-                                Imgproc.rectangle(
-                                        input,
-                                        new Point(j - 5, i - 5),
-                                        new Point(j + 5, i + 5),
-                                        new Scalar(255, 75, 75), 1); // Make rectangles Light Red
+
+                        // Check if the pixel is within the center rectangle
+                        if (j >= input.cols() / 4 && j <= input.cols() * (2f / 4f) &&
+                                i >= input.rows() / 8 && i <= input.rows() * (2f / 3f)) {
+                            totalPixelCountCenter++;
+
+                            if (saturation >= saturationThreshold) {
+                                redPixelCountCenter++;
+                            }
+                        }
+
+                        // Check if the pixel is within the right rectangle
+                        if (j >= input.cols() * (3f / 4f) && j <= input.cols() - 1 &&
+                                i >= input.rows() / 8 && i <= input.rows() * (3f / 4f)) {
+                            totalPixelCountRight++;
+
+                            if (saturation >= saturationThreshold) {
+                                redPixelCountRight++;
                             }
                         }
                     }
                 }
+            }
+
+            // Calculate the percentage of red pixels in each rectangle
+            double percentageRedCenter = (double) redPixelCountCenter / totalPixelCountCenter;
+            double percentageRedRight = (double) redPixelCountRight / totalPixelCountRight;
+
+            // Check if the percentage of red pixels is greater than 40%
+            if (percentageRedCenter > 0.75) {
+                Imgproc.rectangle(
+                        input,
+                        new Point(input.cols() / 4, input.rows() / 8),
+                        new Point(input.cols() * (2f / 4f), input.rows() * (2f / 3f)),
+                        new Scalar(0, 255, 0), -1); // Turn the rectangle green
+            }
+
+            if (percentageRedRight > 0.75) {
+                Imgproc.rectangle(
+                        input,
+                        new Point(input.cols() * (3f / 4f), input.rows() / 8),
+                        new Point(input.cols() - 1, input.rows() * (3f / 4f)),
+                        new Scalar(0, 255, 0), -1); // Turn the rectangle green
             }
         }
     }
