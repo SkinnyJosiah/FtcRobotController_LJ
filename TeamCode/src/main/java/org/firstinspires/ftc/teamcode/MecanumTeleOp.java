@@ -35,6 +35,7 @@ public class MecanumTeleOp extends LinearOpMode {
         // Connected to Expansion Hub
         DcMotor linearMotor = hardwareMap.dcMotor.get("linearMotor"); // For Linear Slide
         DcMotor leadMotor = hardwareMap.dcMotor.get("leadMotor"); // for Lead Screw
+        DcMotor spoolMotor = hardwareMap.dcMotor.get("spoolMotor");
 
         // Servos for Claw / Linear Slide
         // Connected to Expansion Hub
@@ -196,19 +197,13 @@ public class MecanumTeleOp extends LinearOpMode {
 
 
             // Temporary servo fix.
-            if (touchpad){
-                ServoTilt.setDirection(Servo.Direction.REVERSE);
-            }
-            else {
-                ServoTilt.setDirection(Servo.Direction.FORWARD);
-            }
 
             if (dpadLeft) {
                 // set servo to its flat position
-                ServoTilt.setPosition(0.45); // (This is about ~40 degrees)
+                ServoTilt.setPosition(0.55); //
             } else if (circle) {
                 // set servo to its backboard position
-                ServoTilt.setPosition(0.95); // (This is -45 degrees.)
+                ServoTilt.setPosition(-1); //
             } else if (rightButton) {
                 // intended to set servo back to hiding position
                 ServoTilt.setPosition(0);
