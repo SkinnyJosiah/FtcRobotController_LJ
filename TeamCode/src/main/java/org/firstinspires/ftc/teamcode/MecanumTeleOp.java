@@ -1,5 +1,5 @@
 // Hello, how are you today!!
-// I'm gonna mess this up BAD.
+// I'm gonna mess this up BAD
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -26,7 +26,6 @@ public class MecanumTeleOp extends LinearOpMode {
         DcMotor RFMotor = hardwareMap.dcMotor.get("RFMotor");
         DcMotor RBMotor = hardwareMap.dcMotor.get("RBMotor");
 
-
         // REVERSE RIGHT SIDE MOTORS (very important, otherwise robot is erratic)
         // If robot moves backwards when commanded to go forwards, reverse the left side instead.
 
@@ -38,6 +37,13 @@ public class MecanumTeleOp extends LinearOpMode {
         DcMotor linearMotor = hardwareMap.dcMotor.get("linearMotor"); // For Linear Slide
         DcMotor leadMotor = hardwareMap.dcMotor.get("leadMotor"); // for Lead Screw
         DcMotor spoolMotor = hardwareMap.dcMotor.get("spoolMotor");
+
+        //Slide motor framework sec01
+        DcMotor rSlideMotor = hardwareMap.dcMotor.get("RightSlideMotor");
+        DcMotor lSlideMotor = hardwareMap.dcMotor.get("LeftSlideMotor");
+
+        //Slide motor framework sec02
+        //Reverse ONE of the slide motors here so they both go up with a positive value as they are mirrored.
 
         // Servos for Claw / Linear Slide
         // Connected to Expansion Hub
