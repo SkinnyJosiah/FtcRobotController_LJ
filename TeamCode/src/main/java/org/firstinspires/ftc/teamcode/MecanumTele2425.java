@@ -23,7 +23,7 @@ public class MecanumTele2425 extends LinearOpMode {
 
         DcMotor intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
         DcMotor leftSlideMotor = hardwareMap.dcMotor.get("leftSlideMotor");
-        DcMotor rightSlideMotor = hardwareMap.dcMotor.get("rightslideMotor");
+        DcMotor rightSlideMotor = hardwareMap.dcMotor.get("rightSlideMotor");
 
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -60,11 +60,11 @@ public class MecanumTele2425 extends LinearOpMode {
             }
 
             // Intake Motor Controls -- Triangle / X
-            if(gamepad1.triangle) {
+            if(gamepad1.right_bumper) {
                intakeMotor.setPower(1);
             }
-            if(gamepad1.x){
-                intakeMotor.setPower(-1);
+            if(gamepad1.left_bumper){
+                intakeMotor.setPower(0);
             }
             double slidePowerUp = gamepad1.right_trigger;  // Get the right trigger value (0.0 to 1.0)
             double slidePowerDown = gamepad1.left_trigger; // Get the left trigger value (0.0 to 1.0)
