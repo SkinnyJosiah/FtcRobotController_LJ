@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class MecanumTele2425 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-
+        //hello did this work
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("LFMotor");
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("LBMotor");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("RFMotor");
