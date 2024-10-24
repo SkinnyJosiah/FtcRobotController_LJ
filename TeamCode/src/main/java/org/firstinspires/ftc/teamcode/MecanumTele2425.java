@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class MecanumTele2425 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        //hello did this work
+
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("LFMotor");
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("LBMotor");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("RFMotor");
@@ -23,7 +23,7 @@ public class MecanumTele2425 extends LinearOpMode {
 
         DcMotor intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
         DcMotor leftSlideMotor = hardwareMap.dcMotor.get("leftSlideMotor");
-        DcMotor rightSlideMotor = hardwareMap.dcMotor.get("slideMotor");
+        DcMotor rightSlideMotor = hardwareMap.dcMotor.get("rightslideMotor");
 
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -66,23 +66,22 @@ public class MecanumTele2425 extends LinearOpMode {
             if(gamepad1.x){
                 intakeMotor.setPower(-1);
             }
-
-            // leftSlideMotor Controls
-            if(gamepad1.dpad_left){
-                leftSlideMotor.setPower(1);
+            double slidePowerUp = gamepad1.right_trigger;  // Get the right trigger value (0.0 to 1.0)
+            double slidePowerDown = gamepad1.left_trigger; // Get the left trigger value (0.0 to 1.0)
+            // hopefully up
+            // If the right trigger is pressed, move the slides up proportionally
+            if (slidePowerUp > 0) {
+                rightSlideMotor.setPower(slidePowerUp);
+                leftSlideMotor.setPower(-slidePowerUp);
             }
-            if(gamepad1.dpad_right){
-                leftSlideMotor.setPower(-1);
+            else if (slidePowerDown > 0) {
+                rightSlideMotor.setPower(-slidePowerDown);
+                leftSlideMotor.setPower(slidePowerDown);
             }
-
-            // rightSlideMotor Controls
-            if(gamepad1.square){
-                rightSlideMotor.setPower(1);
+            else {
+                rightSlideMotor.setPower(0);
+                leftSlideMotor.setPower(0);
             }
-            if(gamepad1.circle){
-                rightSlideMotor.setPower(-1);
-            }
-
             frontLeftMotor.setPower(frontLeftPower * powerMultiplier);
             backLeftMotor.setPower(backLeftPower * powerMultiplier);
             frontRightMotor.setPower(frontRightPower * powerMultiplier);
