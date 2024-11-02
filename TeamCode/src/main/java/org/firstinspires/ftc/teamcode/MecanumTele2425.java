@@ -125,7 +125,7 @@ public class MecanumTele2425 extends LinearOpMode {
             if(gamepad1.triangle) {
                intakeMotor.setPower(1);
             }
-
+//jnj
             if(gamepad1.x){
                 intakeMotor.setPower(0);
             }
