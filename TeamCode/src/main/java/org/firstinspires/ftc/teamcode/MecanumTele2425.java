@@ -30,7 +30,7 @@ public class MecanumTele2425 extends LinearOpMode {
 
         // Reverse Motor direction for proper driving
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);// just fyi, default is forward so you really dont need these lines
         frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -45,7 +45,13 @@ public class MecanumTele2425 extends LinearOpMode {
         Servo spoolServo = hardwareMap.servo.get("spoolServo");
 
         //          Gamepad Misc Buttons b-----------------------------------------------------------------b
-
+        // what are you trying to do this line to line 89? this will assign the values "dpadUp" etc to whatever that button 
+        //is only on init, i can see what you are trying to do and make it more concise but if you want to do this I would          recommend doing it with functions
+        /*
+        boolean dpadUp(){// function is called dpadUp and will return a type of boolean
+        return gamepad1.dpad_up;
+        }
+        */
         boolean dpadUp = gamepad1.dpad_up;
         boolean dpadDown = gamepad1.dpad_down;
         boolean dpadLeft = gamepad1.dpad_left;
@@ -90,19 +96,26 @@ public class MecanumTele2425 extends LinearOpMode {
         boolean isHalfPower = false; // Track power state
 
         while (opModeIsActive()) {
-            double y = -gamepad1.left_stick_y;
+            double y = gamepad1.left_stick_y; // - removed for reason below
             double x = -gamepad1.right_stick_x;
             double rx = -gamepad1.left_stick_x;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = (-y + x + rx) / denominator;
-            double backLeftPower = (-y - x + rx) / denominator;
-            double frontRightPower = (-y - x - rx) / denominator;
-            double backRightPower = (-y + x - rx) / denominator;
+            double frontLeftPower = (y + x + rx) / denominator; // on this line to the next 4 you can remove a - in front of the y as you already negated it above
+            double backLeftPower = (y - x + rx) / denominator;
+            double frontRightPower = (y - x - rx) / denominator;
+            double backRightPower = (y + x - rx) / denominator;
 
             if (gamepad1.left_bumper) {
+                /*
+                Here, you could also do
+                isHalfPower= !isHalfPower // reset it
+                if (isHalfPower){powerMultiplier = 0.5;}else{powerMultiplier=1.0;}
+                This solution provides for readability of your code for everyone who might be reading it, which is extremely important when you have multiple people working on the same code
+                */
                 if (!isHalfPower) { // Only change state if it was previously false
                     powerMultiplier = powerMultiplier == 0.5 ? 1.0 : 0.5; // Toggle between 25% and 50% driving powa!
+                    // shouldnt this be 0.5 and 1.0 power in the comment above?
                     isHalfPower = true;
                 }
             } else {
@@ -111,23 +124,22 @@ public class MecanumTele2425 extends LinearOpMode {
 
             if(gamepad1.dpad_left) {
                 horizontalSlideMotor.setPower(1);
-            }
-            
-            if(gamepad1.dpad_right) {
+            }else if(gamepad1.dpad_right) { // this should use an else to prevent clipping
                 horizontalSlideMotor.setPower(-1);
-            }
+            }// should also contain an else setPower(0) to stop
 
-            if (gamepad1.right_bumper) {
+            if (gamepad1.right_bumper) { // can this be implemented into the if statements above? all this does is set the power to 1 and doesnt reference your "isHalfPower" variable
                 powerMultiplier = 1.0; // Set to full powa!
             }
 
             // Intake Motor Controls -- Triangle / X
             if(gamepad1.triangle) {
                intakeMotor.setPower(1);
-            }
+            }// again here I would use the else if and then it will allow you to reverse it as well
             if(gamepad1.x){
                 intakeMotor.setPower(0);
             }
+            
             if(gamepad1.dpad_down){
                 spoolServo.setPosition(5);
             }
@@ -161,6 +173,7 @@ public class MecanumTele2425 extends LinearOpMode {
             backLeftMotor.setPower(backLeftPower * powerMultiplier);
             frontRightMotor.setPower(frontRightPower * powerMultiplier);
             backRightMotor.setPower(backRightPower * powerMultiplier);
+            // ideally you should do everything for motor power in the same block, ie. move it up after setting all these powers (just to make it more concise
 
         }
     }
