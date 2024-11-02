@@ -30,13 +30,19 @@ public class MecanumTele2425 extends LinearOpMode {
 
         // Reverse Motor direction for proper driving
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Servos
         Servo leftIntake = hardwareMap.servo.get("leftIntake");
         Servo rightIntake = hardwareMap.servo.get("rightIntake");
         Servo spoolServo = hardwareMap.servo.get("spoolServo");
-        Servo testServo = hardwareMap.servo.get("testServo");
 
         //          Gamepad Misc Buttons b-----------------------------------------------------------------b
 
@@ -85,8 +91,8 @@ public class MecanumTele2425 extends LinearOpMode {
 
         while (opModeIsActive()) {
             double y = -gamepad1.left_stick_y;
-            double x = gamepad1.left_stick_x * 1.1;
-            double rx = gamepad1.right_stick_x;
+            double x = -gamepad1.right_stick_x;
+            double rx = -gamepad1.left_stick_x;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double frontLeftPower = (-y + x + rx) / denominator;
@@ -96,7 +102,7 @@ public class MecanumTele2425 extends LinearOpMode {
 
             if (gamepad1.left_bumper) {
                 if (!isHalfPower) { // Only change state if it was previously false
-                    powerMultiplier = powerMultiplier == 0.25 ? 0.5 : 0.25; // Toggle between 25% and 50% driving powa!
+                    powerMultiplier = powerMultiplier == 0.5 ? 1.0 : 0.5; // Toggle between 25% and 50% driving powa!
                     isHalfPower = true;
                 }
             } else {
@@ -121,7 +127,7 @@ public class MecanumTele2425 extends LinearOpMode {
             }
 
             if(gamepad1.x){
-                intakeMotor.setPower(-1);
+                intakeMotor.setPower(0);
             }
             
             double slidePowerUp = gamepad1.right_trigger;  // Get the right trigger value (0.0 to 1.0)
@@ -131,13 +137,13 @@ public class MecanumTele2425 extends LinearOpMode {
             // move both slides at the same time to make slide NOT crooked.
             // If the right trigger is pressed, move the slides up proportionally
             if (slidePowerUp > 0) {
-                rightSlideMotor.setPower(slidePowerUp);
-                leftSlideMotor.setPower(-slidePowerUp);
+                rightSlideMotor.setPower(-slidePowerUp);
+                leftSlideMotor.setPower(slidePowerUp);
             }
 
             else if (slidePowerDown > 0) {
-                rightSlideMotor.setPower(-slidePowerDown);
-                leftSlideMotor.setPower(slidePowerDown);
+                rightSlideMotor.setPower(slidePowerDown);
+                leftSlideMotor.setPower(-slidePowerDown);
             }
 
             else {
@@ -154,31 +160,18 @@ public class MecanumTele2425 extends LinearOpMode {
             // Servo Work
 
             if(dpadUpD){
-                spoolServo.setDirection(Servo.Direction.FORWARD);
+                spoolServo.setPosition(0.3);
             }
             if(dpadDownD){
-                spoolServo.setDirection(Servo.Direction.REVERSE);
+                spoolServo.setPosition(-0.3);
             }
 
-            if(dpadLeftD){
-                leftIntake.setPosition(-1);
-            }
-            if(dpadRightD){
-                leftIntake.setPosition(1);
-            }
-
+            //intake motor controls
             if(squareD){
-                rightIntake.setPosition(-1);
+                rightIntake.setPosition(1);
             }
             if(circleD){
-                rightIntake.setPosition(-1);
-            }
-
-            if(triangleD){
-                testServo.setPosition(-1);
-            }
-            if(crossD){
-                testServo.setPosition(1);
+                rightIntake.setPosition(0);
             }
         }
     }
