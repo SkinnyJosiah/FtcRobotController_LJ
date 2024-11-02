@@ -129,6 +129,12 @@ public class MecanumTele2425 extends LinearOpMode {
             if(gamepad1.x){
                 intakeMotor.setPower(0);
             }
+            if(gamepad1.dpad_down){
+                spoolServo.setPosition(0.3);
+            }
+            if(gamepad1.dpad_up) {
+                spoolServo.setPosition(-0.3);
+            }
             
             double slidePowerUp = gamepad1.right_trigger;  // Get the right trigger value (0.0 to 1.0)
             double slidePowerDown = gamepad1.left_trigger; // Get the left trigger value (0.0 to 1.0)
@@ -157,22 +163,6 @@ public class MecanumTele2425 extends LinearOpMode {
             frontRightMotor.setPower(frontRightPower * powerMultiplier);
             backRightMotor.setPower(backRightPower * powerMultiplier);
 
-            // Servo Work
-
-            if(dpadUpD){
-                spoolServo.setPosition(0.3);
-            }
-            if(dpadDownD){
-                spoolServo.setPosition(-0.3);
-            }
-
-            //intake motor controls
-            if(squareD){
-                rightIntake.setPosition(1);
-            }
-            if(circleD){
-                rightIntake.setPosition(0);
-            }
         }
     }
 }
