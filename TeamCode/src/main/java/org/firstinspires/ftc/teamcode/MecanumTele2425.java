@@ -37,7 +37,6 @@ public class MecanumTele2425 extends LinearOpMode {
         Servo leftIntake = hardwareMap.servo.get("leftIntake");
         Servo rightIntake = hardwareMap.servo.get("rightIntake");
         Servo spoolServo = hardwareMap.servo.get("spoolServo");
-        Servo testServo = hardwareMap.servo.get("testServo");
 
         //          Gamepad Misc Buttons b-----------------------------------------------------------------b
 
@@ -169,13 +168,6 @@ public class MecanumTele2425 extends LinearOpMode {
             }
             if (circleD) {
                 rightIntake.setPosition(-1);
-            }
-
-            if (triangleD) {
-                testServo.setPosition(-1);
-            }
-            if (crossD) {
-                testServo.setPosition(1);
             }
         }
     }
