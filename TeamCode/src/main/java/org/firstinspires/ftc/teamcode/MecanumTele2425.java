@@ -167,7 +167,7 @@ public class MecanumTele2425 extends LinearOpMode {
                 rightIntake.setPosition(-1);
             }
             if (circleD) {
-                rightIntake.setPosition(-1);
+                rightIntake.setPosition(-1); //FUCK
             }
         }
     }
