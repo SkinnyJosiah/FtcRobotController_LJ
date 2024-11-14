@@ -43,44 +43,8 @@ public class MecanumTele2425 extends LinearOpMode {
         Servo leftIntake = hardwareMap.servo.get("leftIntake");
         Servo rightIntake = hardwareMap.servo.get("rightIntake");
         Servo spoolServo = hardwareMap.servo.get("spoolServo");
+        Servo meshNet = hardwareMap.servo.get("meshNet");
 
-        //          Gamepad Misc Buttons b-----------------------------------------------------------------b
-
-        boolean dpadUp = gamepad1.dpad_up;
-        boolean dpadDown = gamepad1.dpad_down;
-        boolean dpadLeft = gamepad1.dpad_left;
-        boolean dpadRight = gamepad1.dpad_right;
-
-        boolean triangle = gamepad1.triangle;
-        boolean cross = gamepad1.cross;
-        boolean circle = gamepad1.circle;
-        boolean square = gamepad1.square;
-
-        boolean leftButton = gamepad1.left_stick_button;
-        boolean rightButton = gamepad1.right_stick_button;
-
-        boolean leftBumper = gamepad1.left_bumper;
-        boolean rightBumper = gamepad1.right_bumper;
-
-        boolean touchpad = gamepad1.touchpad;
-
-//          Gamepad 2 Controls, Shared names have a D after them to represent "double" or "dos" for the 2nd gamepad.
-
-        boolean dpadUpD = gamepad2.dpad_up;
-        boolean dpadDownD = gamepad2.dpad_down;
-        boolean dpadLeftD = gamepad2.dpad_left;
-        boolean dpadRightD = gamepad2.dpad_right;
-
-        boolean triangleD = gamepad2.triangle;
-        boolean crossD = gamepad2.cross;
-        boolean circleD = gamepad2.circle;
-        boolean squareD = gamepad2.square;
-
-        boolean leftButtonD = gamepad2.left_stick_button;
-        boolean rightButtonD = gamepad2.right_stick_button;
-
-        boolean leftBumperD = gamepad2.left_bumper;
-        boolean rightBumperD = gamepad2.right_bumper;
 
         waitForStart();
 
@@ -109,32 +73,39 @@ public class MecanumTele2425 extends LinearOpMode {
                 isHalfPower = false; // Reset
             }
 
-            if(gamepad1.dpad_left) {
-                horizontalSlideMotor.setPower(1);
-            }
+           // if(gamepad2.dpad_left) {
+                //horizontalSlideMotor.setPower(-0.3);
+            //}
             
-            if(gamepad1.dpad_right) {
-                horizontalSlideMotor.setPower(-1);
-            }
+            //if(gamepad2.dpad_right) {
+                //horizontalSlideMotor.setPower(0.3);
+            //}
 
-            if (gamepad1.right_bumper) {
+            if (gamepad2.right_bumper) {
                 powerMultiplier = 1.0; // Set to full powa!
             }
-
-            // Intake Motor Controls -- Triangle / X
-            if(gamepad1.triangle) {
-               intakeMotor.setPower(1);
-            }
-            if(gamepad1.x){
+            if (gamepad2.x){
                 intakeMotor.setPower(0);
             }
-            if(gamepad1.dpad_down){
-                spoolServo.setPosition(5);
+            if (gamepad2.y) {
+                intakeMotor.setPower(1);
             }
-            if(gamepad1.dpad_up) {
-                spoolServo.setPosition(5);
+            if(gamepad2.dpad_down){
+                spoolServo.setPosition(0.02);
+                meshNet.setPosition(0);
             }
-            
+            if(gamepad2.dpad_up) {
+                spoolServo.setPosition(0.353);
+                meshNet.setPosition(0.5);
+            }
+            if(gamepad2.a){
+                rightIntake.setPosition(0.17);
+                leftIntake.setPosition(0.17);
+            }
+            if(gamepad2.b){
+                rightIntake.setPosition(0);
+                leftIntake.setPosition(0);
+            }
             double slidePowerUp = gamepad1.right_trigger;  // Get the right trigger value (0.0 to 1.0)
             double slidePowerDown = gamepad1.left_trigger; // Get the left trigger value (0.0 to 1.0)
 
