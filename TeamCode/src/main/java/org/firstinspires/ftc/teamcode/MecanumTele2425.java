@@ -111,7 +111,7 @@ public class MecanumTele2425 extends LinearOpMode {
 
             // hopefully up
             // move both slides at the same time to make slide NOT crooked.
-            // If the right trigger is pressed, move the slides up proportionally
+            // If the right trigger is pressed, move the slides up proportionall
             if (slidePowerUp > 0) {
                 rightSlideMotor.setPower(-slidePowerUp);
                 leftSlideMotor.setPower(slidePowerUp);
