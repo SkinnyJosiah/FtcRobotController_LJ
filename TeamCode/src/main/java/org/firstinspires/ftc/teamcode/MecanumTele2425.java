@@ -38,7 +38,8 @@ public class MecanumTele2425 extends LinearOpMode {
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        leftSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // Servos
         Servo leftIntake = hardwareMap.servo.get("leftIntake");
         Servo rightIntake = hardwareMap.servo.get("rightIntake");
@@ -57,7 +58,7 @@ public class MecanumTele2425 extends LinearOpMode {
             double y = -gamepad1.left_stick_y;
             double x = -gamepad1.right_stick_x;
             double rx = -gamepad1.left_stick_x;
-
+            boolean justPressed = false;
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double frontLeftPower = (-y + x + rx) / denominator;
             double backLeftPower = (-y - x + rx) / denominator;
@@ -80,7 +81,6 @@ public class MecanumTele2425 extends LinearOpMode {
             //if(gamepad2.dpad_right) {
                 //horizontalSlideMotor.setPower(0.3);
             //}
-
             if (gamepad2.right_bumper) {
                 powerMultiplier = 1.0; // Set to full powa!
             }
@@ -95,19 +95,19 @@ public class MecanumTele2425 extends LinearOpMode {
                 meshNet.setPosition(0);
             }
             if(gamepad2.dpad_up) {
-                spoolServo.setPosition(0.353);
+                spoolServo.setPosition(0.358);
                 meshNet.setPosition(0.5);
             }
             if(gamepad2.a){
-                rightIntake.setPosition(0.17);
-                leftIntake.setPosition(0.17);
+                rightIntake.setPosition(0.3);
+                leftIntake.setPosition(0.7);
             }
             if(gamepad2.b){
-                rightIntake.setPosition(0);
+                rightIntake.setPosition(1);
                 leftIntake.setPosition(0);
             }
-            double slidePowerUp = gamepad1.right_trigger;  // Get the right trigger value (0.0 to 1.0)
-            double slidePowerDown = gamepad1.left_trigger; // Get the left trigger value (0.0 to 1.0)
+            double slidePowerUp = gamepad2.right_trigger;  // Get the right trigger value (0.0 to 1.0)
+            double slidePowerDown = gamepad2.left_trigger; // Get the left trigger value (0.0 to 1.0)
 
             // hopefully up
             // move both slides at the same time to make slide NOT crooked.
