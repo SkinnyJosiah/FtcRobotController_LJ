@@ -54,28 +54,22 @@ public class SM_test_OpMode extends LinearOpMode {
         Servo spoolServo = hardwareMap.servo.get("spoolServo");
         Servo meshNet = hardwareMap.servo.get("meshNet");
 
-        public void sldiesup(); {
-            rightSlideMotor.setPower(1);
-        }
-
-
-
-
         StateMachine machine = new StateMachineBuilder()
                 .state(IntakeAndOuttake.IDLING)
                 .onEnter( () -> {
                     rightSlideMotor.setPower(0.3);
                     rightSlideMotor.setPower(-0.3);
                 })
-                .transition( () ->  gamepad1.x )
-                .onExit( () -> telemetry.println("Exiting!") ) // setting check2 to false
-
-                .state(IntakeAndOuttake.EXTENDING)
-                .onEnter( () -> System.out.println( "Entering the second state" ) )
-                .transition( () -> gamepad1.b) // if check2 is false transition
-
-                .state(IntakeAndOuttake.DEPOSITING)
-                .onEnter( () -> System.out.println( "In the third state " ) )
+                .transition( () -> gamepad1.x )
+                .onExit( () -> {
+                    rightSlideMotor.setPower(-0.3);
+                    rightSlideMotor.setPower(0.3);
+                })// setting check2 to false
+                //.state(IntakeAndOuttake.EXTENDING)
+                //.onEnter( () -> System.out.println( "Entering the second state" ) )
+                //.transition( () -> gamepad1.b) // if check2 is false transition
+                //.state(IntakeAndOuttake.DEPOSITING)
+                //.onEnter( () -> System.out.println( "In the third state " ) )
                 .build();
 
         waitForStart();

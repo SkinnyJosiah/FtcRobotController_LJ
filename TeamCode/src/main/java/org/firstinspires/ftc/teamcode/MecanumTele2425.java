@@ -46,7 +46,6 @@ public class MecanumTele2425 extends LinearOpMode {
         Servo spoolServo = hardwareMap.servo.get("spoolServo");
         Servo meshNet = hardwareMap.servo.get("meshNet");
 
-
         waitForStart();
 
         if (isStopRequested()) return;
@@ -58,7 +57,8 @@ public class MecanumTele2425 extends LinearOpMode {
             double y = -gamepad1.left_stick_y;
             double x = -gamepad1.right_stick_x;
             double rx = -gamepad1.left_stick_x;
-            boolean justPressed = false;
+            boolean intakeToggle = false;
+            boolean prevX = false;
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double frontLeftPower = (-y + x + rx) / denominator;
             double backLeftPower = (-y - x + rx) / denominator;
@@ -77,26 +77,26 @@ public class MecanumTele2425 extends LinearOpMode {
            // if(gamepad2.dpad_left) {
                 //horizontalSlideMotor.setPower(-0.3);
             //}
-            
+
             //if(gamepad2.dpad_right) {
                 //horizontalSlideMotor.setPower(0.3);
             //}
             if (gamepad2.right_bumper) {
                 powerMultiplier = 1.0; // Set to full powa!
             }
-            if (gamepad2.x){
-                intakeMotor.setPower(0);
+            if (gamepad2.x && !prevX) { // Detects a rising edge on the X button
+                intakeToggle = !intakeToggle; // Toggle the state
             }
-                else if (gamepad2.y) {
-                    intakeMotor.setPower(1);
-                }
+            prevX = gamepad2.x; // Update the previous state
+            intakeMotor.setPower(intakeToggle ? 1.0 : 0.0);
+
             if(gamepad2.dpad_down){
                 spoolServo.setPosition(0.02);
                 meshNet.setPosition(0);
             }
                 else if (gamepad2.dpad_up) {
-                    spoolServo.setPosition(0.358);
-                    meshNet.setPosition(0.5);
+                spoolServo.setPosition(0.358);
+                meshNet.setPosition(0.5);
                 }
             if(gamepad2.a){
                 rightIntake.setPosition(0.3);
