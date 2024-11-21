@@ -25,4 +25,5 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
+    implementation 'com.github.GramGra07:StateMachineFTC:1.2.1'
 }

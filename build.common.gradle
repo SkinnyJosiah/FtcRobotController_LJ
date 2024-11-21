@@ -108,6 +108,8 @@ android {
 
     packagingOptions {
         pickFirst '**/*.so'
+        exclude 'META-INF/LICENSE-notice.md'
+        exclude 'META-INF/LICENSE.md'
     }
     sourceSets.main {
         jni.srcDirs = []
