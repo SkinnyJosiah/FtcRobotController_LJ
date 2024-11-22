@@ -181,7 +181,7 @@ public class SM_test_OpMode extends LinearOpMode {
                 horSlideRight.setPosition(-0.295);
             }
             else if (gamepad1.cross) {
-                horSlideLeft.setPosition(0.06); //exten
+                horSlideLeft.setPosition(0.06); //extend
                 horSlideRight.setPosition(0.06);
             }
             double slidePowerUp = gamepad2.right_trigger;  // Get the right trigger value (0.0 to 1.0)
