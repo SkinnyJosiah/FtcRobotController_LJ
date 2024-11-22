@@ -187,7 +187,7 @@ public class SM_test_OpMode extends LinearOpMode {
             double slidePowerUp = gamepad2.right_trigger;  // Get the right trigger value (0.0 to 1.0)
             double slidePowerDown = gamepad2.left_trigger; // Get the left trigger value (0.0 to 1.0)
 
-            // hopefully up
+            // hopefully up loooool
             // move both slides at the same time to make slide NOT crooked.
             // If the right trigger is pressed, move the slides up proportionall
             if (slidePowerUp > 0) {
