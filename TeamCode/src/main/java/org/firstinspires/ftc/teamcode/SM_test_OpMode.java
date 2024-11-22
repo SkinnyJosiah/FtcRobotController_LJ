@@ -71,19 +71,19 @@ public class SM_test_OpMode extends LinearOpMode {
         /*StateMachine machine = new StateMachineBuilder()
                 .state(IntakeAndOuttake.IDLING)
                 .onEnter( () -> {
-                    rightSlideMotor.setPower(0.3);
-                    rightSlideMotor.setPower(-0.3);
+                    horSlideLeft.setPosition(0.027);
+                    horSlideRight.setPosition(0.973);
                 })
-                .transition( () -> gamepad1.x )
+                .transition( () -> gamepad1.circle )
                 .onExit( () -> {
-                    rightSlideMotor.setPower(-0.3);
-                    rightSlideMotor.setPower(0.3);
-                })// setting check2 to false
-                //.state(IntakeAndOuttake.EXTENDING)
-                //.onEnter( () -> System.out.println( "Entering the second state" ) )
-                //.transition( () -> gamepad1.b) // if check2 is false transition
-                //.state(IntakeAndOuttake.DEPOSITING)
-                //.onEnter( () -> System.out.println( "In the third state " ) )
+                    horSlideLeft.setPosition(0.28);
+                    horSlideRight.setPosition(0.72);
+                })
+                /*.state(IntakeAndOuttake.EXTENDING)
+                .onEnter( () -> System.out.println( "Entering the second state" ) )
+                .transition( () -> gamepad1.b) // if check2 is false transition
+                .state(IntakeAndOuttake.DEPOSITING)
+                .onEnter( () -> System.out.println( "In the third state " ) )
                 .build();*/
 
         waitForStart();
@@ -177,12 +177,12 @@ public class SM_test_OpMode extends LinearOpMode {
             }
 
             if (gamepad1.circle){
-                horSlideLeft.setPosition(-0.295);
-                horSlideRight.setPosition(-0.295);
+                horSlideLeft.setPosition(0.28);
+                horSlideRight.setPosition(0.72);
             }
             else if (gamepad1.cross) {
-                horSlideLeft.setPosition(0.06); //extend
-                horSlideRight.setPosition(0.06);
+                horSlideLeft.setPosition(0.027);
+                horSlideRight.setPosition(0.973);
             }
             double slidePowerUp = gamepad2.right_trigger;  // Get the right trigger value (0.0 to 1.0)
             double slidePowerDown = gamepad2.left_trigger; // Get the left trigger value (0.0 to 1.0)
