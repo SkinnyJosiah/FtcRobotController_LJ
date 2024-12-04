@@ -47,7 +47,7 @@ public class SM_test_OpMode extends LinearOpMode {
     Servo horSlideRight = null;
     Servo intakeTilt = null;
     Servo intake = null;
-    
+
     void update(){
         switch (IOState){
             case IDLE:
@@ -59,7 +59,7 @@ public class SM_test_OpMode extends LinearOpMode {
                 horSlideRight.setPosition(0.73);
                 break;
         }
-    }
+    }//
     @Override
     public void runOpMode() throws InterruptedException {
 
