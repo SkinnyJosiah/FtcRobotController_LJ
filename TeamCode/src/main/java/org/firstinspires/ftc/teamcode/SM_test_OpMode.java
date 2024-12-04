@@ -22,7 +22,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class SM_test_OpMode extends LinearOpMode {
     private enum IntakeAndOuttake{
         RETRACTING,
-        IDLE
+        IDLE,
+        EXTEND,
+        ABTTORET
     }
     private IntakeAndOuttake IOState = IntakeAndOuttake.IDLE;
     private ElapsedTime runtime = new ElapsedTime();
@@ -47,17 +49,37 @@ public class SM_test_OpMode extends LinearOpMode {
     Servo horSlideRight = null;
     Servo intakeTilt = null;
     Servo intake = null;
-
+    double lasttime = 0;
     void update(){
         switch (IOState){
             case IDLE:
-                intakeTilt.setPosition(0.5);
-
+                intakeTilt.setPosition(0.75);
+                intake.setPosition(0);
                 break;
+
+            case ABTTORET:
+                intakeTilt.setPosition(0.98);
+                if (runtime.seconds()-lasttime>0.5) {
+                    intake.setPosition(0.15);
+                }
+                break;
+
             case RETRACTING:
+                intakeTilt.setPosition(0.2);
                 horSlideLeft.setPosition(0.33);
                 horSlideRight.setPosition(0.73);
+                if (runtime.seconds()-lasttime>0.5) {
+                    intake.setPosition(0);
+                }
+                    break;
+
+            case EXTEND:
+                intakeTilt.setPosition(0.75);
+                intake.setPosition(0);
+                horSlideLeft.setPosition(0.097);
+                horSlideRight.setPosition(0.973);
                 break;
+
         }
     }//
     @Override
@@ -101,49 +123,12 @@ public class SM_test_OpMode extends LinearOpMode {
         intakeTilt = hardwareMap.servo.get("intakeTilt");
         intake = hardwareMap.servo.get("intake");
 
-
-        //position stuff
-        //machine.start();
-        /*public void LinearSlideDrive(double slideSpeed, double slideRotationInches, double slideTmeoutS){
-            int rightSlideTarget;
-            int leftSlideTarget;
-            // Ensure that the opmode is still active
-            if (opModeIsActive()) {
-
-                // Determine new target position, and pass to motor controller
-                rightSlideTarget = rightSlideMotor.getCurrentPosition() + (int)(slideRotationInches * COUNTS_PER_LS_INCH);
-                leftSlideTarget = leftSlideMotor.getCurrentPosition() + (int)(slideRotationInches * COUNTS_PER_LS_INCH);
-
-                rightSlideMotor.setTargetPosition(rightSlideTarget);
-                leftSlideMotor.setTargetPosition(leftSlideTarget);
-                // Turn On RUN_TO_POSITION
-                rightSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                leftSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-                // reset the timeout time and start motion.
-                runtime.reset();
-                rightSlideMotor.setPower(Math.abs(slideSpeed));
-                leftSlideMotor.setPower(Math.abs(slideSpeed));
-
-                while (opModeIsActive() && (runtime.seconds() < slideTmeoutS) && (leftSlideMotor.isBusy() && (rightSlideMotor.isBusy()))) {
-                    telemetry.update();
-                }
-                // Stop all motion;
-                rightSlideMotor.setPower(0);
-                leftSlideMotor.setPower(0);
-
-                // Turn off RUN_TO_POSITION
-                rightSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                leftSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-                sleep(250);   // optional pause after each move.
-            }
-        }*/
         waitForStart();
         if (isStopRequested()) return;
 
         double powerMultiplier = 1.0; // Start at full power
         boolean isHalfPower = false; // Track power state
+        runtime.reset();
 
         while (opModeIsActive()) {
             update();
@@ -174,19 +159,15 @@ public class SM_test_OpMode extends LinearOpMode {
 
 
             if (gamepad1.triangle){
-                IOState = IntakeAndOuttake.IDLE;
+                runtime.reset();
+                IOState = IntakeAndOuttake.RETRACTING;
             }
-            /*else if (gamepad1.square){
-                intakeTilt.setPosition(0);
-            }*/
-
-            if(gamepad2.dpad_down){
-                spoolServo.setPosition(0.02);
-                meshNet.setPosition(0);
+            if (gamepad1.square){
+                IOState = IntakeAndOuttake.EXTEND;
             }
-            else if (gamepad2.dpad_up) {
-                spoolServo.setPosition(0.358);
-                meshNet.setPosition(0.5);
+            if (gamepad1.circle){
+                runtime.reset();
+                IOState = IntakeAndOuttake.ABTTORET;
             }
             if(gamepad2.a){
                 rightIntake.setPosition(0.3);
@@ -196,15 +177,6 @@ public class SM_test_OpMode extends LinearOpMode {
                 rightIntake.setPosition(1);
                 leftIntake.setPosition(0);
             }
-
-            /*if (gamepad1.dpad_up){
-                horSlideLeft.setPosition(0.33);
-                horSlideRight.setPosition(0.73); //- = up higher
-            }*/
-            /*else if (gamepad1.dpad_down) {
-                horSlideLeft.setPosition(0.097);
-                horSlideRight.setPosition(0.973);//adjusting angles s othey are the same up and down (0.973
-            }*/
             double slidePowerUp = gamepad2.right_trigger;  // Get the right trigger value (0.0 to 1.0)
             double slidePowerDown = gamepad2.left_trigger; // Get the left trigger value (0.0 to 1.0)
 
