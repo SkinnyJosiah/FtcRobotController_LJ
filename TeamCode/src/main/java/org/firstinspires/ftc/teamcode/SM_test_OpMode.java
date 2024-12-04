@@ -1,4 +1,8 @@
 package org.firstinspires.ftc.teamcode;
+import static android.provider.SyncStateContract.Helpers.update;
+
+import android.widget.Switch;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,31 +20,59 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @TeleOp
 public class SM_test_OpMode extends LinearOpMode {
-    enum IntakeAndOuttake{
-        IDLING,
-        EXTENDING,
-        DEPOSITING,
-        RETRACTING
+    private enum IntakeAndOuttake{
+        RETRACTING,
+        IDLE
     }
+    private IntakeAndOuttake IOState = IntakeAndOuttake.IDLE;
     private ElapsedTime runtime = new ElapsedTime();
     static final double COUNTS_PER_MOTOR_BILDA = 28;
     static final double LINEAR_SLIDE_GEARING = 	19.20;
     static final double PULLEY_WHEEL_DIAMETER_INCHES = 1.45;
     static final double COUNTS_PER_LS_INCH = (COUNTS_PER_MOTOR_BILDA / LINEAR_SLIDE_GEARING) * (PULLEY_WHEEL_DIAMETER_INCHES * 3.1415 * 2);
     static final double LINEAR_SLIDE_SPEED = 1.0;
+    DcMotor rightSlideMotor = null;
+    DcMotor leftSlideMotor = null;
+    DcMotor frontLeftMotor = null;
+    DcMotor frontRightMotor = null;
+    DcMotor backLeftMotor = null;
+    DcMotor backRightMotor = null;
+    DcMotor intakeMotor = null;
+    DcMotor horizontalSlideMotor = null;
+    Servo leftIntake = null;
+    Servo rightIntake = null;
+    Servo spoolServo = null;
+    Servo meshNet = null;
+    Servo horSlideLeft = null;
+    Servo horSlideRight = null;
+    Servo intakeTilt = null;
+    Servo intake = null;
+    
+    void update(){
+        switch (IOState){
+            case IDLE:
+                intakeTilt.setPosition(0.5);
+
+                break;
+            case RETRACTING:
+                horSlideLeft.setPosition(0.33);
+                horSlideRight.setPosition(0.73);
+                break;
+        }
+    }
     @Override
     public void runOpMode() throws InterruptedException {
 
         // Driving Motors
-        DcMotor frontLeftMotor = hardwareMap.dcMotor.get("LFMotor");
-        DcMotor backLeftMotor = hardwareMap.dcMotor.get("LBMotor");
-        DcMotor frontRightMotor = hardwareMap.dcMotor.get("RFMotor");
-        DcMotor backRightMotor = hardwareMap.dcMotor.get("RBMotor");
+        frontLeftMotor = hardwareMap.dcMotor.get("LFMotor");
+        backLeftMotor = hardwareMap.dcMotor.get("LBMotor");
+        frontRightMotor = hardwareMap.dcMotor.get("RFMotor");
+        backRightMotor = hardwareMap.dcMotor.get("RBMotor");
         // Misc. Motors
-        DcMotor intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
-        DcMotor horizontalSlideMotor = hardwareMap.dcMotor.get("horizontalSlideMotor");
-        DcMotor leftSlideMotor = hardwareMap.dcMotor.get("leftSlideMotor");
-        DcMotor rightSlideMotor = hardwareMap.dcMotor.get("rightSlideMotor");
+        intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
+        horizontalSlideMotor = hardwareMap.dcMotor.get("horizontalSlideMotor");
+        leftSlideMotor = hardwareMap.dcMotor.get("leftSlideMotor");
+        rightSlideMotor = hardwareMap.dcMotor.get("rightSlideMotor");
         //encoders
         // Reverse Motor direction for proper driving
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -60,33 +92,17 @@ public class SM_test_OpMode extends LinearOpMode {
         leftSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // Servos
-        Servo leftIntake = hardwareMap.servo.get("leftIntake");
-        Servo rightIntake = hardwareMap.servo.get("rightIntake");
-        Servo spoolServo = hardwareMap.servo.get("spoolServo");
-        Servo meshNet = hardwareMap.servo.get("meshNet");
-        Servo horSlideLeft = hardwareMap.servo.get("horSlideLeft");
-        Servo horSlideRight = hardwareMap.servo.get("horSlideRight");
+        leftIntake = hardwareMap.servo.get("leftIntake");
+        rightIntake = hardwareMap.servo.get("rightIntake");
+        spoolServo = hardwareMap.servo.get("spoolServo");
+        meshNet = hardwareMap.servo.get("meshNet");
+        horSlideLeft = hardwareMap.servo.get("horSlideLeft");
+        horSlideRight = hardwareMap.servo.get("horSlideRight");
+        intakeTilt = hardwareMap.servo.get("intakeTilt");
+        intake = hardwareMap.servo.get("intake");
+
 
         //position stuff
-        /*StateMachine machine = new StateMachineBuilder()
-                .state(IntakeAndOuttake.IDLING)
-                .onEnter( () -> {
-                    horSlideLeft.setPosition(0.027);
-                    horSlideRight.setPosition(0.973);
-                })
-                .transition( () -> gamepad1.circle )
-                .onExit( () -> {
-                    horSlideLeft.setPosition(0.28);
-                    horSlideRight.setPosition(0.72);
-                })
-                /*.state(IntakeAndOuttake.EXTENDING)
-                .onEnter( () -> System.out.println( "Entering the second state" ) )
-                .transition( () -> gamepad1.b) // if check2 is false transition
-                .state(IntakeAndOuttake.DEPOSITING)
-                .onEnter( () -> System.out.println( "In the third state " ) )
-                .build();*/
-
-        waitForStart();
         //machine.start();
         /*public void LinearSlideDrive(double slideSpeed, double slideRotationInches, double slideTmeoutS){
             int rightSlideTarget;
@@ -123,18 +139,20 @@ public class SM_test_OpMode extends LinearOpMode {
                 sleep(250);   // optional pause after each move.
             }
         }*/
+        waitForStart();
         if (isStopRequested()) return;
 
         double powerMultiplier = 1.0; // Start at full power
         boolean isHalfPower = false; // Track power state
 
         while (opModeIsActive()) {
+            update();
             //machine.update();
             double y = -gamepad1.left_stick_y;
             double x = -gamepad1.right_stick_x;
             double rx = -gamepad1.left_stick_x;
             boolean intakeToggle = false;
-            boolean prevX = false;
+            boolean prevTri = false;
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double frontLeftPower = (-y + x + rx) / denominator;
             double backLeftPower = (-y - x + rx) / denominator;
@@ -153,11 +171,14 @@ public class SM_test_OpMode extends LinearOpMode {
             if (gamepad2.right_bumper) {
                 powerMultiplier = 1.0; // Set to full powa!
             }
-            if (gamepad2.x && !prevX) { // Detects a rising edge on the X button
-                intakeToggle = !intakeToggle; // Toggle the state
+
+
+            if (gamepad1.triangle){
+                IOState = IntakeAndOuttake.IDLE;
             }
-            prevX = gamepad2.x; // Update the previous state
-            intakeMotor.setPower(intakeToggle ? 1.0 : 0.0);
+            /*else if (gamepad1.square){
+                intakeTilt.setPosition(0);
+            }*/
 
             if(gamepad2.dpad_down){
                 spoolServo.setPosition(0.02);
@@ -176,14 +197,14 @@ public class SM_test_OpMode extends LinearOpMode {
                 leftIntake.setPosition(0);
             }
 
-            if (gamepad1.circle){
-                horSlideLeft.setPosition(0.28);
-                horSlideRight.setPosition(0.72);
-            }
-            else if (gamepad1.cross) {
-                horSlideLeft.setPosition(0.027);
-                horSlideRight.setPosition(0.973);
-            }
+            /*if (gamepad1.dpad_up){
+                horSlideLeft.setPosition(0.33);
+                horSlideRight.setPosition(0.73); //- = up higher
+            }*/
+            /*else if (gamepad1.dpad_down) {
+                horSlideLeft.setPosition(0.097);
+                horSlideRight.setPosition(0.973);//adjusting angles s othey are the same up and down (0.973
+            }*/
             double slidePowerUp = gamepad2.right_trigger;  // Get the right trigger value (0.0 to 1.0)
             double slidePowerDown = gamepad2.left_trigger; // Get the left trigger value (0.0 to 1.0)
 
