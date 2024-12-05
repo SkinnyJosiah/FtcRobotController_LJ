@@ -154,7 +154,7 @@ public class SM_test_OpMode extends LinearOpMode {
             }
 
             if (gamepad2.right_bumper) {
-                powerMultiplier = 1.0; // Set to full powa
+                powerMultiplier = 1.0; // Set to full powa!
             }
 
 
