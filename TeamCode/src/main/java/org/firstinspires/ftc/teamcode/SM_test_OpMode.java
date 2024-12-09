@@ -53,7 +53,7 @@ public class SM_test_OpMode extends LinearOpMode {
     void update(){
         switch (IOState){
             case IDLE:
-                intakeTilt.setPosition(0.75);
+                intakeTilt.setPosition(0.75); //upload stuff
                 intake.setPosition(0);
                 break;
 
