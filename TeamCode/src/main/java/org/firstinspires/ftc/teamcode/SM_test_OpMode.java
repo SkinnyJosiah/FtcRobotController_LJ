@@ -24,7 +24,9 @@ public class SM_test_OpMode extends LinearOpMode {
         RETRACTING,
         IDLE,
         EXTEND,
-        ABTTORET
+        ABTTORET,
+        RDY2SCORE,
+        XFER
     }
     private IntakeAndOuttake IOState = IntakeAndOuttake.IDLE;
     private ElapsedTime runtime = new ElapsedTime();
@@ -52,9 +54,9 @@ public class SM_test_OpMode extends LinearOpMode {
             case IDLE:
                 intakeTilt.setPosition(0.75); //upload stuff
                 intake.setPosition(0);
-                rightIntake.setPosition(0.3);
-                leftIntake.setPosition(0.97);
-                xfer.setPosition(0);
+                rightIntake.setPosition(0.06);
+                leftIntake.setPosition(0.94);
+                xfer.setPosition(0.15);
                 break;
 
             case ABTTORET:
@@ -64,25 +66,42 @@ public class SM_test_OpMode extends LinearOpMode {
                 }
                 break;
 
-            case RETRACTING:
-                intakeTilt.setPosition(0.2);
-                horSlideLeft.setPosition(0.33);
-                horSlideRight.setPosition(0.73);
-                rightIntake.setPosition(0.3);
-                leftIntake.setPosition(0.97);
-                if (runtime.seconds()-lasttime>1.0) {
+            case XFER:
+                if (runtime.seconds()-lasttime>0.3) {
+                    xfer.setPosition(0);
                     intake.setPosition(0);
-                    xfer.setPosition(0.15);
+                    intakeTilt.setPosition(0.1);
+                    if (runtime.seconds()-lasttime>0.3) {
+                        rightIntake.setPosition(0.70);
+                        leftIntake.setPosition(0.30);
+                    }
                 }
-                    break;
+                break;
+
+            case RETRACTING:
+                rightIntake.setPosition(0.06);
+                leftIntake.setPosition(0.94);
+                intakeTilt.setPosition(0.2);
+                xfer.setPosition(0.15);
+                if (runtime.seconds()-lasttime>0.3) {
+                    horSlideLeft.setPosition(0.33);
+                    horSlideRight.setPosition(0.73);
+                    }
+                break;
+
+            case RDY2SCORE:
+                rightIntake.setPosition(0.70);
+                leftIntake.setPosition(0.30);
+                break;
 
             case EXTEND:
-                intakeTilt.setPosition(0.75);
+                intakeTilt.setPosition(0.75); //upload stuff
                 intake.setPosition(0);
+                rightIntake.setPosition(0.06);
+                leftIntake.setPosition(0.94);
+                xfer.setPosition(0.15);
                 horSlideLeft.setPosition(0.097);
                 horSlideRight.setPosition(0.973);
-                rightIntake.setPosition(0.5);
-                leftIntake.setPosition(0.5);
                 break;
 
         }
@@ -161,15 +180,19 @@ public class SM_test_OpMode extends LinearOpMode {
 
 
             if (gamepad1.triangle){
-                runtime.equals(lasttime);
+                runtime.reset();
                 IOState = IntakeAndOuttake.RETRACTING;
             }
             if (gamepad1.square){
                 IOState = IntakeAndOuttake.EXTEND;
             }
             if (gamepad1.circle){
-                runtime.equals(lasttime);
+                runtime.reset();
                 IOState = IntakeAndOuttake.ABTTORET;
+            }
+            if (gamepad1.cross){
+                runtime.reset();
+                IOState = IntakeAndOuttake.XFER;
             }
 
             double slidePowerUp = gamepad2.right_trigger;  // Get the right trigger value (0.0 to 1.0)
