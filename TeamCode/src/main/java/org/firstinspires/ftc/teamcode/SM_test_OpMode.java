@@ -86,7 +86,7 @@ public class SM_test_OpMode extends LinearOpMode {
                 if (runtime.seconds()-lasttime>0.3) {
                     horSlideLeft.setPosition(0.33);
                     horSlideRight.setPosition(0.73);
-                    }
+                }
                 break;
 
             case RDY2SCORE:
