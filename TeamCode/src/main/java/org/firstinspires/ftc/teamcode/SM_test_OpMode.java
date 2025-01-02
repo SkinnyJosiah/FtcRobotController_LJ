@@ -118,11 +118,12 @@ public class SM_test_OpMode extends LinearOpMode {
         leftSlideMotor = hardwareMap.dcMotor.get("leftSlideMotor");
         rightSlideMotor = hardwareMap.dcMotor.get("rightSlideMotor");
         //encoders
+
         // Reverse Motor direction for proper driving
-        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD); // og rev
+        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE); // og for
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE); // og for
+        backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD); // og rev
 
         frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
