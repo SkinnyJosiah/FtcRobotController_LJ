@@ -30,7 +30,7 @@ public class SM_test_OpMode extends LinearOpMode {
         SLIDE_UP_AND_STAY,
         SLIDE_DOWN_AND_STAY,
         OFF_THE_WALL,
-        GRAB
+        DROP_TOP, GRAB
     }
     private IntakeAndOuttake IOState = IntakeAndOuttake.IDLE;
     private ElapsedTime runtime = new ElapsedTime();
@@ -54,7 +54,7 @@ public class SM_test_OpMode extends LinearOpMode {
     Servo xfer = null;
     double lasttime = 0;
     boolean xferready = false;
-    
+
     void update(){
         switch (IOState){
             case IDLE:
@@ -66,24 +66,30 @@ public class SM_test_OpMode extends LinearOpMode {
                 break;
 
             case ABTTORET:
-                intakeTilt.setPosition(0.98);
+                intakeTilt.setPosition(1);
                 if (runtime.seconds()-lasttime>0.5) {
-                    intake.setPosition(0.13);
+                    intake.setPosition(0.75);
                 }
                 break;
 
             case XFER:
                 xfer.setPosition(0);
-                intake.setPosition(0);
-                intakeTilt.setPosition(0.1);
+                intakeTilt.setPosition(0.34);
+                if (runtime.seconds()-lasttime>0.5) {
+                    intake.setPosition(0);
+                }
                 break;
 
             case RETRACTING:
                 rightIntake.setPosition(0.06);
                 leftIntake.setPosition(0.94);
-                intakeTilt.setPosition(0.2);
-                xfer.setPosition(0.15);
-                if (runtime.seconds()-lasttime>0.60) {
+                intakeTilt.setPosition(0);
+
+                if(runtime.seconds()-lasttime>0.85){
+                    xfer.setPosition(0.30);
+                    }
+
+                if (runtime.seconds()-lasttime>0.5) {
                     horSlideLeft.setPosition(0.33);
                     horSlideRight.setPosition(0.73);
                     }
@@ -98,7 +104,7 @@ public class SM_test_OpMode extends LinearOpMode {
                 break;
 
             case EXTEND:
-                intakeTilt.setPosition(0.75); //upload stuff
+                intakeTilt.setPosition(0.5); //upload stuff
                 intake.setPosition(0);
                 rightIntake.setPosition(0.06);
                 leftIntake.setPosition(0.94);
@@ -108,16 +114,21 @@ public class SM_test_OpMode extends LinearOpMode {
                 break;
 
             case OFF_THE_WALL:
+                xfer.setPosition(1);
                 rightIntake.setPosition(0.95); // top intake right
                 leftIntake.setPosition(0.05); // top intake left
-                xfer.setPosition(0.20);
+                break;
+
+            case DROP_TOP:
+                xfer.setPosition(0);
                 break;
 
             case GRAB:
-                xfer.setPosition(0);
+                xfer.setPosition(1);
                 if (runtime.seconds()-lasttime>0.6) {
                     rightIntake.setPosition(0.70);
                     leftIntake.setPosition(0.30);
+                    intake.setPosition(0);
                 }
         }
     }//
@@ -187,6 +198,11 @@ public class SM_test_OpMode extends LinearOpMode {
 
             if (gamepad2.right_bumper) {
                 powerMultiplier = 1.0; // Set to full powa!
+            }
+
+            if (gamepad1.dpad_left) {
+                runtime.reset();
+                IOState = IntakeAndOuttake.DROP_TOP;
             }
 
             if (gamepad1.square){
